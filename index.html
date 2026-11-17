@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="محاكي سيارة الإسعاف — محاكاة تفاعلية لتدريب طلاب الإسعاف | Interactive ambulance & ACLS simulator for paramedic students">
+<title>محاكي سيارة الإسعاف</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@600;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="app" dir="rtl" lang="ar">
+<header class="top"><div class="top-in">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="#fff" d="M9.5 2h5v6.2l5.4-3.1 2.5 4.3L17 12.5l5.4 3.1-2.5 4.3-5.4-3.1V23h-5v-6.2L4.1 19.9l-2.5-4.3L7 12.5 1.6 9.4l2.5-4.3 5.4 3.1z"/></svg></div>
+    <div><b>محاكي سيارة الإسعاف</b><small>تدريب طلاب الخدمات الطبية الطارئة</small></div>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="الأقسام">
+    <button role="tab" data-view="sim" aria-selected="true">محاكاة الحالات</button>
+    <button role="tab" data-view="mega" aria-selected="false">ACLS Megacode</button>
+    <button role="tab" data-view="check" aria-selected="false">تجهيز الإسعاف</button>
+    <button role="tab" data-view="amb3d" aria-selected="false">محاكي سيارة الإسعاف</button>
+  </nav>
+  <button class="btn" id="langBtn" data-noi18n lang="en">English</button>
+  <button class="btn" id="sndBtn" aria-pressed="true" title="تشغيل أو إيقاف كل المؤثرات الصوتية">الصوت: يعمل</button>
+</div></header>
+
+<main>
+<!-- ============ SIMULATION ============ -->
+<section id="view-sim">
+  <div id="picker" class="wrap">
+    <div class="hero">
+      <div>
+        <h1>تدرّب على القرار الميداني من البلاغ حتى التسليم</h1>
+        <p>كل حالة تسير مثل المناوبة الحقيقية: تقرأ البلاغ وتجهز المعدات، تقيّم المريض، تقرأ المونيتور، تختار العلاج، والمريض يتحسن أو يتدهور حسب قراراتك. في النهاية يشرح لك التقرير أهم ما تحتاج تحسينه.</p>
+        <div class="row" style="margin-top:14px"><button class="btn primary big" data-act="firstrun">ابدأ أول تدريب</button><span class="muted small">حالة مبتدئة موجّهة خطوة بخطوة، مناسبة لأول مرة.</span></div>
+      </div>
+      <div class="flow" aria-label="خطوات كل حالة">
+        <div>البلاغ والتجهيز</div><div>التقييم الأولي</div><div>تصنيف الحالة</div><div>العلاج وقراءة ECG</div><div>النقل والتسليم</div>
+      </div>
+    </div>
+    <div class="row filters">
+      <div class="tabs" id="scFilter">
+        <button data-f="all" aria-selected="true">كل الحالات</button>
+        <button data-f="medical" aria-selected="false">الحالات الطبية</button>
+        <button data-f="trauma" aria-selected="false">حالات الإصابات</button>
+      </div>
+    </div>
+    <div class="sgrid" id="scGrid"></div>
+  </div>
+
+  <div id="sim" class="wrap" hidden>
+    <div class="simbar">
+      <h2 id="simTitle"></h2>
+      <span class="pill" id="simMode"></span>
+      <span class="clock" id="simClock">00:00</span>
+      <button class="btn" id="simPause">إيقاف مؤقت</button>
+      <button class="btn dark" id="simTrainer">لوحة المدرب</button>
+      <button class="btn ghost" id="simRestart">محاولة جديدة</button>
+      <button class="btn ghost" id="simExit">خروج</button>
+    </div>
+    <div class="simstrip" id="simStrip" aria-live="off"></div>
+    <div class="simgrid">
+      <div class="col stick">
+        <div id="monSim"></div>
+        <div class="card pad pt" id="ptCard"></div>
+        <div class="card pad"><h3>سجل الحالة</h3><div class="log" id="simLog"></div></div>
+      </div>
+      <div class="col">
+        <div class="card pad phase">
+          <div class="stepper" id="stepper"></div>
+          <div id="phaseBody" class="phase"></div>
+        </div>
+        <div class="card pad rx" id="rxPanel" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="debrief" class="wrap" hidden></div>
+
+  <aside class="drawer" id="trainer" hidden aria-label="لوحة المدرب">
+    <header><h3>لوحة المدرب</h3><button class="btn" id="trClose">إغلاق</button></header>
+    <div class="body" id="trBody"></div>
+  </aside>
+</section>
+
+<!-- ============ MEGACODE ============ -->
+<section id="view-mega" hidden>
+  <div id="mcPick" class="wrap"></div>
+  <div id="mcRun" class="wrap" hidden>
+    <div class="simbar">
+      <h2 id="mcTitle"></h2>
+      <span class="pill" id="mcMode"></span>
+      <span class="clock" id="mcClock">00:00</span>
+      <div class="seg" id="mcSpeed" title="سرعة الوقت">
+        <button data-sp="1" aria-pressed="true">×1</button><button data-sp="2" aria-pressed="false">×2</button><button data-sp="4" aria-pressed="false">×4</button>
+      </div>
+      <button class="btn" id="mcStop">إيقاف الإنعاش</button>
+      <button class="btn ghost" id="mcNew">محاولة جديدة</button>
+      <button class="btn ghost" id="mcExit">خروج</button>
+    </div>
+    <div class="mcgrid">
+      <div class="col stick">
+        <div id="monMc"></div>
+        <div class="coach" id="mcCoach"><b>الخطوة التالية حسب خوارزمية AHA</b><p></p></div>
+        <div class="card pad"><h3>سجل الإنعاش</h3><div class="log" id="mcLog"></div></div>
+      </div>
+      <div class="col" id="mcCtl"></div>
+    </div>
+  </div>
+  <div id="mcDeb" class="wrap" hidden></div>
+</section>
+
+<!-- ============ AMBULANCE CHECK ============ -->
+<section id="view-check" hidden><div class="wrap" id="ckWrap"></div></section>
+<section id="view-amb3d" hidden><div class="wrap" id="a3Wrap"></div></section>
+</main>
+<div class="ovl" id="startOvl" hidden><div class="ovl-card card" role="dialog" aria-modal="true" aria-labelledby="stTitle" id="stBody"></div></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="js/i18n-data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
